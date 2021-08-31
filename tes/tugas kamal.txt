@@ -1,0 +1,145 @@
+Ada data pegawai yang di berikan sebagai berikut :
+
+nama
+nipnibnik
+status pegawai
+no kartu pegawai
+no ktp
+gelar depan
+gelar belakang
+jenis kelamin
+tempat lahir
+tanggal lahir
+agama
+status kawin
+alamat
+rt
+rw
+provinsi
+kota
+kecamatan
+kelurahan
+kode pos
+no telp
+email
+npwp
+foto
+
+	
+##############- Table user #########################
+		id
+		nipnibnik int (17)
+		nama varchar (50)
+		password varchar(255)
+		is_active	tinyint(1)
+		Created date default timestamp
+		Update date default 00
+		Delete date default 00
+####################################################
+
+
+##############- Table status pegawai ###############
+		id
+		nama status
+		is_active	tinyint(1)
+		Created date default timestamp
+		Update date default 00
+		Delete date default 00
+####################################################
+
+################## - Tabel detail pegawai ##########
+	nipnibnik int(17)
+	no ktp
+	gelar depan
+	gelar belakang
+	jenis kelamin
+	tempat lahir
+	tanggal lahir
+	agama 
+	status kawin
+	alamat
+	rt
+	rw
+	provinsi 
+	kota      
+	kecamatan
+	kode pos
+	no telp
+	email
+	npwp
+	foto
+####################################################
+
+
+############## - Table role belong to user #########
+	Id_role foreing table role
+	nipnibnik foreign table user	
+####################################################
+
+############## - Table role ########################
+	Id_role primary key
+	role varchar (20)
+	Created date default timestamp
+	Update date default 00
+	Delete date default 00
+####################################################
+
+select * from profile_user_inner_join
+select * from profile_users
+select * from profile_user_left_join
+select * from read_all_profile_left_join_users('1');
+select * from read_all_profile_inner_join_users();
+select * from read_all_profile_user_right_join();
+
+--##update##
+create function update_stok_barang() returns trigger
+    language plpgsql
+as
+$$
+BEGIN
+        IF  NEW.stok <> old.stok
+            or new.id_barang <> old.id_barang
+            or new.nama_barang <> old.nama_barang
+            THEN
+           update barang set update_at=now()+interval '7 hour' where id_barang=old.id_barang;
+      end if;
+        RETURN new;
+    end;
+$$;
+
+alter function update_stok_barang() owner to postgres;
+
+create trigger update_date
+    after update
+    on barang
+    for each row
+    execute procedure update_stok_barang();
+
+---------------------------------------------
+--##Deleted
+create function delete_barang() returns trigger
+    language plpgsql
+as
+$$
+BEGIN
+       delete from history_stok where id_barang=old.id_barang;
+        RETURN new;
+    end;
+$$;
+
+alter function delete_barang() owner to postgres;
+
+create trigger delete_barang
+    before delete
+    on barang
+    for each row
+    execute procedure delete_barang();
+
+create trigger update_barang
+    before  update
+    on barang
+    for each row
+    execute procedure history_stok_barang();
+
+
+
